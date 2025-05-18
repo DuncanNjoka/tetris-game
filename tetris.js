@@ -15,6 +15,7 @@ const BORDER_COLOR = '#333333';
 const scoreElement = document.getElementById('score');
 const linesElement = document.getElementById('lines');
 const levelElement = document.getElementById('level');
+const highScoreElement = document.getElementById('highScore');
 const startBtn = document.getElementById('start-btn');
 const pauseBtn = document.getElementById('pause-btn');
 
@@ -31,6 +32,7 @@ let nextPiece;
 let dropStart;
 let dropCounter = 0;
 let dropInterval = 1000; // Initial speed (milliseconds)
+let highScore = localStorage.getItem('tetrisHighScore') || 0;
 
 // Tetromino definitions with colors
 const TETROMINOS = [
@@ -367,20 +369,56 @@ function updateScoreDisplay() {
     scoreElement.textContent = score;
     linesElement.textContent = lines;
     levelElement.textContent = level;
+    highScoreElement.textContent = highScore;
+    
+    // Update high score if current score is higher
+    if (score > highScore) {
+        highScore = score;
+        localStorage.setItem('tetrisHighScore', highScore);
+        highScoreElement.textContent = highScore;
+    }
 }
 
 // Game over
 function gameOver() {
     isGameOver = true;
     clearInterval(gameInterval);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    
+    // Create a semi-transparent overlay
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw game over text with animation
+    const gameOverText = 'GAME OVER';
+    const finalScoreText = `Final Score: ${score}`;
+    const highScoreText = `High Score: ${highScore}`;
+    const restartText = 'Press Start to Play Again';
+    
+    // Draw game over text with a glow effect
+    ctx.shadowColor = '#ff0000';
+    ctx.shadowBlur = 20;
     ctx.fillStyle = '#ffffff';
-    ctx.font = '30px Arial';
+    ctx.font = 'bold 40px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
+    ctx.fillText(gameOverText, canvas.width / 2, canvas.height / 2 - 60);
+    
+    // Reset shadow
+    ctx.shadowBlur = 0;
+    
+    // Draw score information
+    ctx.font = '24px Arial';
+    ctx.fillText(finalScoreText, canvas.width / 2, canvas.height / 2);
+    ctx.fillText(highScoreText, canvas.width / 2, canvas.height / 2 + 40);
+    
+    // Draw restart instruction
     ctx.font = '20px Arial';
-    ctx.fillText('Press Start to Play Again', canvas.width / 2, canvas.height / 2 + 40);
+    ctx.fillStyle = '#3498db';
+    ctx.fillText(restartText, canvas.width / 2, canvas.height / 2 + 100);
+    
+    // Draw some decorative elements
+    ctx.strokeStyle = '#3498db';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(20, canvas.height / 2 - 100, canvas.width - 40, 220);
 }
 
 // Toggle pause
